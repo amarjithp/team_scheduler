@@ -53,4 +53,13 @@ class AuthRepository {
       throw Exception('Failed to sign up: $e');
     }
   }
+
+  Future<List<UserModel>> getAllUsers() async {
+    try {
+      final response = await supabase.from('users').select();
+      return (response as List).map((e) => UserModel.fromMap(e)).toList();
+    } catch (e) {
+      throw Exception('Failed to fetch users: $e');
+    }
+  }
 }

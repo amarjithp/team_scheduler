@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:team_scheduler/data/repositories/auth_repository.dart';
+import 'package:team_scheduler/data/repositories/task_repository.dart';
 import 'package:team_scheduler/presentation/cubits/auth/auth_cubit.dart';
 import 'package:team_scheduler/presentation/pages/onboarding_page.dart';
 import 'package:team_scheduler/data/repositories/availability_repository.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
       providers: [
         RepositoryProvider(create: (context) => AuthRepository()),
         RepositoryProvider(create: (context) => AvailabilityRepository()),
+        RepositoryProvider(create: (context) => TaskRepository()),
       ],
       child: MaterialApp(
         title: 'Team Scheduler',
