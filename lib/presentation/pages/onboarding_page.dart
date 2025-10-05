@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:team_scheduler/presentation/cubits/auth/auth_cubit.dart';
+import 'package:team_scheduler/presentation/pages/availability_page.dart';
+import 'package:team_scheduler/presentation/cubits/availability/availability_cubit.dart';
+import 'package:team_scheduler/data/repositories/availability_repository.dart';
 
 
 class OnboardingPage extends StatefulWidget {
@@ -46,10 +49,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
             );
           }
           if (state is AuthSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: Colors.green,
-                content: Text('Welcome, ${state.user.name}! User created successfully.')
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => BlocProvider(
+                  create: (context) => AvailabilityCubit(
+                    context.read<AvailabilityRepository>(),
+                  )..loadAvailability(), // Create cubit and load initial data
+                  child: const AvailabilityPage(),
+                ),
               ),
             );
           }

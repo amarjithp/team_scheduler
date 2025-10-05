@@ -1,4 +1,3 @@
-// lib/presentation/cubits/auth/auth_state.dart
 part of 'auth_cubit.dart';
 
 abstract class AuthState extends Equatable {

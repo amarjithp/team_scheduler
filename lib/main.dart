@@ -1,5 +1,3 @@
-// lib/main.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:team_scheduler/data/repositories/auth_repository.dart';
 import 'package:team_scheduler/presentation/cubits/auth/auth_cubit.dart';
 import 'package:team_scheduler/presentation/pages/onboarding_page.dart';
+import 'package:team_scheduler/data/repositories/availability_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,9 +26,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // AFTER
-    return RepositoryProvider(
-      create: (context) => AuthRepository(), 
+    return MultiRepositoryProvider( // Use MultiRepositoryProvider for multiple repositories
+      providers: [
+        RepositoryProvider(create: (context) => AuthRepository()),
+        RepositoryProvider(create: (context) => AvailabilityRepository()),
+      ],
       child: MaterialApp(
         title: 'Team Scheduler',
         theme: ThemeData(
