@@ -187,6 +187,7 @@ class _OnboardingPageState extends State<OnboardingPage> with SingleTickerProvid
           enabled: !isLoading,
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
+          onSubmitted: (_) => _continue(),
           onChanged: (value) {
             if (_nameErrorText != null) {
               setState(() {
