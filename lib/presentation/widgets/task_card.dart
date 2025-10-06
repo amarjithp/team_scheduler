@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:team_scheduler/data/models/task_model.dart';
 
@@ -12,30 +13,53 @@ class TaskCard extends StatelessWidget {
     final timeFormatter = DateFormat('h:mm a');
     final collaboratorNames = task.collaborators.map((u) => u.name).join(', ');
     final duration = task.endTime.difference(task.startTime).inMinutes;
+    const accentColor = Color(0xFFE0218A);
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(task.title, style: Theme.of(context).textTheme.titleLarge),
-            if (task.description != null && task.description!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(task.description!, style: Theme.of(context).textTheme.bodyMedium),
-            ],
-            const Divider(height: 24),
-            InfoRow(icon: Icons.calendar_today, text: dayFormatter.format(task.startTime)),
-            const SizedBox(height: 8),
-            InfoRow(
-              icon: Icons.access_time,
-              text: '${timeFormatter.format(task.startTime)} - ${timeFormatter.format(task.endTime)} ($duration mins)',
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            task.title,
+            style: GoogleFonts.inter(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
             ),
+          ),
+          if (task.description != null && task.description!.isNotEmpty) ...[
             const SizedBox(height: 8),
-            InfoRow(icon: Icons.people_outline, text: collaboratorNames),
+            Text(
+              task.description!,
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.white70),
+            ),
           ],
-        ),
+          const SizedBox(height: 16),
+          InfoRow(
+            icon: Icons.calendar_today_outlined,
+            text: dayFormatter.format(task.startTime),
+            iconColor: accentColor,
+          ),
+          const SizedBox(height: 12),
+          InfoRow(
+            icon: Icons.access_time_filled_outlined,
+            text: '${timeFormatter.format(task.startTime)} - ${timeFormatter.format(task.endTime)} ($duration mins)',
+            iconColor: accentColor,
+          ),
+          const SizedBox(height: 12),
+          InfoRow(
+            icon: Icons.people_outline,
+            text: collaboratorNames,
+            iconColor: accentColor,
+          ),
+        ],
       ),
     );
   }
@@ -44,16 +68,22 @@ class TaskCard extends StatelessWidget {
 class InfoRow extends StatelessWidget {
   final IconData icon;
   final String text;
-  const InfoRow({super.key, required this.icon, required this.text});
+  final Color iconColor;
+  const InfoRow({super.key, required this.icon, required this.text, required this.iconColor});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(width: 8),
-        Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
+        Icon(icon, size: 18, color: iconColor),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.inter(fontSize: 14, color: Colors.white.withOpacity(0.8)),
+          ),
+        ),
       ],
     );
   }

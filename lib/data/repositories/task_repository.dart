@@ -102,10 +102,9 @@ print('🏁 Returning ${finalSlots.length} final slots.');
 
   Future<List<TaskModel>> fetchTasks(String userId) async {
     final response = await supabase
-        .from('tasks')
-        .select('*, task_collaborators!inner(*, users(*))')
-        .eq('task_collaborators.user_id', userId)
-        .order('start_time', ascending: true);
+        .rpc('get_tasks_for_user', params: {'p_user_id': userId})
+        .select('*, task_collaborators(*, users(*))')
+        .order('created_at', ascending: false); 
 
     return (response as List).map((e) => TaskModel.fromMap(e)).toList();
   }
