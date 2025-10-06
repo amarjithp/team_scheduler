@@ -19,21 +19,21 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
       appBar: AppBar(title: const Text('Create New Task')),
       body: BlocConsumer<TaskCreationCubit, TaskCreationState>(
         listener: (context, state) {
-          // Can show snackbars on success/failure here
         },
         builder: (context, state) {
           return Stepper(
             currentStep: _currentStep,
-            onStepContinue: () {
+            onStepContinue: () async {
               if (_currentStep == 2) {
                 context.read<TaskCreationCubit>().findSlots();
               }
               if (_currentStep < 3) {
                 setState(() => _currentStep += 1);
               } else {
-                // This is the final step: "Create Task"
-                context.read<TaskCreationCubit>().createTask();
-                Navigator.of(context).pop(); // Go back after creation
+                final success = await context.read<TaskCreationCubit>().createTask();
+                if (success && mounted) {
+                  Navigator.of(context).pop(true);
+                }
               }
             },
             onStepCancel: () {
@@ -42,16 +42,31 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
             steps: [
               Step(
                 title: const Text('Task Details'),
-                content: TextField(
-                  onChanged: (value) => context.read<TaskCreationCubit>().titleChanged(value),
-                  decoration: const InputDecoration(labelText: 'Task Title'),
+                content: Column(
+                  children: [
+                    TextField(
+                      onChanged: (value) => context.read<TaskCreationCubit>().titleChanged(value),
+                      decoration: const InputDecoration(labelText: 'Task Title'),
+                    ),
+
+                    const SizedBox(height: 16),
+                    
+                    TextField(
+                      onChanged: (value) => context.read<TaskCreationCubit>().descriptionChanged(value),
+                      decoration: const InputDecoration(
+                        labelText: 'Task Description (optional)',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 3,
+                    ),
+                  ],
                 ),
                 isActive: _currentStep >= 0,
               ),
               Step(
                 title: const Text('Collaborators'),
                 content: SizedBox(
-                  height: 200, // Constrain height for the list
+                  height: 200,
                   child: ListView.builder(
                     itemCount: state.allUsers.length,
                     itemBuilder: (ctx, index) {

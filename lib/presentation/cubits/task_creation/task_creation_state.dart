@@ -4,6 +4,7 @@ enum SlotFindingStatus { initial, loading, success, failure }
 
 class TaskCreationState extends Equatable {
   final String title;
+  final String description; 
   final List<UserModel> allUsers;
   final Set<UserModel> selectedCollaborators;
   final int? durationInMinutes;
@@ -13,6 +14,7 @@ class TaskCreationState extends Equatable {
 
   const TaskCreationState({
     this.title = '',
+    this.description = '',
     this.allUsers = const [],
     this.selectedCollaborators = const {},
     this.durationInMinutes,
@@ -23,6 +25,7 @@ class TaskCreationState extends Equatable {
 
   TaskCreationState copyWith({
     String? title,
+    String? description,
     List<UserModel>? allUsers,
     Set<UserModel>? selectedCollaborators,
     int? durationInMinutes,
@@ -32,6 +35,7 @@ class TaskCreationState extends Equatable {
   }) {
     return TaskCreationState(
       title: title ?? this.title,
+      description: description ?? this.description, 
       allUsers: allUsers ?? this.allUsers,
       selectedCollaborators: selectedCollaborators ?? this.selectedCollaborators,
       durationInMinutes: durationInMinutes ?? this.durationInMinutes,
@@ -42,5 +46,5 @@ class TaskCreationState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [title, allUsers, selectedCollaborators, durationInMinutes, status, availableSlots, selectedSlot];
+  List<Object?> get props => [title, description, allUsers, selectedCollaborators, durationInMinutes, status, availableSlots, selectedSlot];
 }

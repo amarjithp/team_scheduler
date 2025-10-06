@@ -19,12 +19,13 @@ class TaskCreationCubit extends Cubit<TaskCreationState> {
     final prefs = await SharedPreferences.getInstance();
     _currentUserId = prefs.getString('user_id');
     final users = await _authRepository.getAllUsers();
-    // Exclude the current user from the collaborator list
     final otherUsers = users.where((user) => user.id != _currentUserId).toList();
     emit(state.copyWith(allUsers: otherUsers));
   }
 
   void titleChanged(String title) => emit(state.copyWith(title: title));
+
+  void descriptionChanged(String description) => emit(state.copyWith(description: description));
 
   void collaboratorToggled(UserModel user) {
     final updatedSet = Set<UserModel>.from(state.selectedCollaborators);
@@ -44,7 +45,7 @@ class TaskCreationCubit extends Cubit<TaskCreationState> {
     emit(state.copyWith(status: SlotFindingStatus.loading));
     try {
       final collaboratorIds = state.selectedCollaborators.map((u) => u.id).toList();
-      // Add the current user to the list for slot finding
+    
       collaboratorIds.add(_currentUserId!);
 
       final slots = await _taskRepository.findCommonSlots(
@@ -59,18 +60,25 @@ class TaskCreationCubit extends Cubit<TaskCreationState> {
 
   void selectSlot(DateTimeRange slot) => emit(state.copyWith(selectedSlot: slot));
 
-  Future<void> createTask() async {
-    if (state.title.isEmpty || state.selectedSlot == null || _currentUserId == null) return;
+  Future<bool> createTask() async {
+    if (state.title.isEmpty || state.selectedSlot == null || _currentUserId == null) return false;
 
-    final collaboratorIds = state.selectedCollaborators.map((u) => u.id).toList();
-    collaboratorIds.add(_currentUserId!);
+    try {
+      final collaboratorIds = state.selectedCollaborators.map((u) => u.id).toList();
+      collaboratorIds.add(_currentUserId!);
 
-    await _taskRepository.createTask(
-      title: state.title,
-      createdBy: _currentUserId!,
-      startTime: state.selectedSlot!.start,
-      endTime: state.selectedSlot!.end,
-      collaboratorIds: collaboratorIds,
-    );
+      await _taskRepository.createTask(
+        title: state.title,
+        description: state.description,
+        createdBy: _currentUserId!,
+        startTime: state.selectedSlot!.start,
+        endTime: state.selectedSlot!.end,
+        collaboratorIds: collaboratorIds,
+      );
+      return true;
+    } catch (e) {
+      print("Error creating task: $e");
+      return false; 
+    }
   }
 }

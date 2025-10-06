@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:team_scheduler/presentation/cubits/auth/auth_cubit.dart';
-import 'package:team_scheduler/presentation/pages/availability_page.dart';
-import 'package:team_scheduler/presentation/cubits/availability/availability_cubit.dart';
-import 'package:team_scheduler/data/repositories/availability_repository.dart';
+import 'package:team_scheduler/data/repositories/task_repository.dart';
+import 'package:team_scheduler/presentation/cubits/task_list/task_list_cubit.dart';
+import 'package:team_scheduler/presentation/pages/task_list_page.dart';
 
 
 class OnboardingPage extends StatefulWidget {
@@ -31,7 +31,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       );
       return;
     }
-    context.read<AuthCubit>().signUp(
+    context.read<AuthCubit>().signInOrCreateUser(
           name: _nameController.text.trim(),
           imageFile: _selectedImage,
         );
@@ -50,15 +50,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
           }
           if (state is AuthSuccess) {
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => BlocProvider(
-                  create: (context) => AvailabilityCubit(
-                    context.read<AvailabilityRepository>(),
-                  )..loadAvailability(), // Create cubit and load initial data
-                  child: const AvailabilityPage(),
-                ),
-              ),
-            );
+    MaterialPageRoute(
+      builder: (_) => BlocProvider(
+        create: (context) => TaskListCubit(
+          context.read<TaskRepository>(),
+        )..loadTasks(),
+        child: const TaskListPage(),
+      ),
+    ),
+  );
           }
         },
         builder: (context, state) {

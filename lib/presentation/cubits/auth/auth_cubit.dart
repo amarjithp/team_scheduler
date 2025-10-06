@@ -14,14 +14,17 @@ class AuthCubit extends Cubit<AuthState> {
 
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> signUp({
+  Future<void> signInOrCreateUser({
     required String name,
     XFile? imageFile,
   }) async {
     emit(AuthLoading());
     try {
-      final user = await _repository.signUp(name: name, imageFile: imageFile);
-
+      final user = await _repository.signInOrCreateUser(
+        name: name,
+        imageFile: imageFile,
+      );
+      
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_id', user.id);
 

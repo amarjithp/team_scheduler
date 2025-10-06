@@ -31,7 +31,7 @@ class TaskRepository {
         .from('availability')
         .select()
         .inFilter('user_id', collaboratorIds)
-        .gte('start_time', DateTime.now().toIso8601String());
+        .gte('start_time', DateTime.now().toUtc().toIso8601String());
 
     final allSlots = (response as List).map((e) => AvailabilityModel.fromMap(e)).toList();
         print('✅ Fetched ${allSlots.length} availability slots from Supabase.');
@@ -74,6 +74,7 @@ print('🏁 Returning ${finalSlots.length} final slots.');
 
   Future<void> createTask({
     required String title,
+    required String description,
     required String createdBy,
     required DateTime startTime,
     required DateTime endTime,
@@ -83,6 +84,7 @@ print('🏁 Returning ${finalSlots.length} final slots.');
       .from('tasks')
       .insert({
         'title': title,
+        'description': description, 
         'created_by': createdBy,
         'start_time': startTime.toIso8601String(),
         'end_time': endTime.toIso8601String(),
@@ -96,5 +98,15 @@ print('🏁 Returning ${finalSlots.length} final slots.');
       .toList();
 
     await supabase.from('task_collaborators').insert(collaboratorMaps);
+  }
+
+  Future<List<TaskModel>> fetchTasks(String userId) async {
+    final response = await supabase
+        .from('tasks')
+        .select('*, task_collaborators!inner(*, users(*))')
+        .eq('task_collaborators.user_id', userId)
+        .order('start_time', ascending: true);
+
+    return (response as List).map((e) => TaskModel.fromMap(e)).toList();
   }
 }

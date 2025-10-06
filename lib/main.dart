@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider( // Use MultiRepositoryProvider for multiple repositories
+    return MultiRepositoryProvider( 
       providers: [
         RepositoryProvider(create: (context) => AuthRepository()),
         RepositoryProvider(create: (context) => AvailabilityRepository()),
