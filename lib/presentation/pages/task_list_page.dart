@@ -4,11 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:team_scheduler/data/repositories/auth_repository.dart';
 import 'package:team_scheduler/data/repositories/availability_repository.dart';
 import 'package:team_scheduler/data/repositories/task_repository.dart';
+import 'package:team_scheduler/presentation/cubits/auth/auth_cubit.dart';
 import 'package:team_scheduler/presentation/cubits/availability/availability_cubit.dart';
 import 'package:team_scheduler/presentation/cubits/task_creation/task_creation_cubit.dart';
 import 'package:team_scheduler/presentation/cubits/task_list/task_list_cubit.dart';
 import 'package:team_scheduler/presentation/pages/availability_page.dart';
 import 'package:team_scheduler/presentation/pages/create_task_page.dart';
+import 'package:team_scheduler/presentation/pages/onboarding_page.dart';
 import 'package:team_scheduler/presentation/widgets/task_card.dart';
 
 class AuroraBackground extends StatelessWidget {
@@ -22,6 +24,20 @@ class AuroraBackground extends StatelessWidget {
 class AuroraPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
+    final paint = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 150);
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final pinkPaint = Paint()
+      ..shader = const RadialGradient(colors: [Color(0xFFE0218A), Colors.transparent]).createShader(rect)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 150);
+    final bluePaint = Paint()
+      ..shader = const RadialGradient(colors: [Color(0xFF1BFFFF), Colors.transparent]).createShader(rect)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 200);
+    canvas.saveLayer(rect, paint);
+    canvas.translate(size.width * -0.1, size.height * 0.1);
+    canvas.drawCircle(Offset.zero, 200, pinkPaint);
+    canvas.translate(size.width * 1.2, size.height * 0.8);
+    canvas.drawCircle(Offset.zero, 300, bluePaint);
+    canvas.restore();
   }
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
@@ -53,16 +69,56 @@ class _TaskListPageState extends State<TaskListPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 16.0),
+                      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
                       child: Column(
                         children: [
-                          Text(
-                            'Task List',
-                            style: GoogleFonts.inter(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
+                          Row(
+                            children: [
+                              BlocBuilder<TaskListCubit, TaskListState>(
+                                builder: (context, state) {
+                                  if (state.currentUser?.photoUrl != null) {
+                                    return CircleAvatar(
+                                      radius: 22,
+                                      backgroundImage: NetworkImage(state.currentUser!.photoUrl!),
+                                    );
+                                  }
+                                  return CircleAvatar(
+                                    radius: 22,
+                                    backgroundColor: Colors.white.withOpacity(0.1),
+                                    child: Text(
+                                      state.currentUser?.name.substring(0, 1) ?? '?',
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
+                                  );
+                                },
+                              ),
+
+                              const Spacer(),
+
+                              Text(
+                                'Task List',
+                                style: GoogleFonts.inter(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const Spacer(),
+
+                              IconButton(
+                                icon: const Icon(Icons.logout, color: Colors.white),
+                                tooltip: 'Logout',
+                                onPressed: () async {
+                                  await context.read<AuthCubit>().signOut();
+                                  if (mounted) {
+                                    Navigator.of(context).pushAndRemoveUntil(
+                                      MaterialPageRoute(builder: (_) => const OnboardingPage()),
+                                      (route) => false,
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 24),
                           Row(
@@ -111,7 +167,6 @@ class _TaskListPageState extends State<TaskListPage> {
                       ),
                     ),
                     const Divider(color: Colors.white12, height: 1, indent: 24, endIndent: 24),
-
                     Expanded(
                       child: BlocBuilder<TaskListCubit, TaskListState>(
                         builder: (context, state) {
@@ -122,7 +177,7 @@ class _TaskListPageState extends State<TaskListPage> {
                             return Center(child: Text('Error: ${state.errorMessage}', style: const TextStyle(color: Colors.white70)));
                           }
                           if (state.tasks.isEmpty) {
-                            return const Center(child: Text('No tasks found. Create one to get started!', style: const TextStyle(color: Colors.white70)));
+                            return const Center(child: Text('No tasks found. Create one to get started!', style: TextStyle(color: Colors.white70)));
                           }
                           return RefreshIndicator(
                             onRefresh: () => context.read<TaskListCubit>().loadTasks(),

@@ -33,14 +33,14 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(create: (context) => AvailabilityRepository()),
         RepositoryProvider(create: (context) => TaskRepository()),
       ],
-      child: MaterialApp(
-        title: 'Team Scheduler',
-        theme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
-        home: BlocProvider(
-          create: (context) => AuthCubit(context.read<AuthRepository>()),
-          child: const OnboardingPage(),
+      child: BlocProvider(
+        create: (context) => AuthCubit(context.read<AuthRepository>()),
+        child: MaterialApp(
+          title: 'Team Scheduler',
+          theme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
+          home: const OnboardingPage(),
         ),
       ),
     );

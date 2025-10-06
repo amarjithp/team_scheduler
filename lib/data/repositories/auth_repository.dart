@@ -1,6 +1,9 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:team_scheduler/data/models/user_model.dart';
 import 'package:team_scheduler/main.dart';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AuthRepository {
   Future<UserModel> signInOrCreateUser({
@@ -29,7 +32,17 @@ class AuthRepository {
         print('✨ User "$name" not found. Creating new user.');
         String? photoUrl;
         if (imageFile != null) {
-          //nothing
+          final fileName = '${DateTime.now().millisecondsSinceEpoch}.${imageFile.path.split(".").last}';
+
+          if (kIsWeb) {
+            final Uint8List fileBytes = await imageFile.readAsBytes();
+            await supabase.storage.from('profile').uploadBinary(fileName, fileBytes);
+          } else {
+            final File file = File(imageFile.path);
+            await supabase.storage.from('profile').upload(fileName, file);
+          }
+
+          photoUrl = supabase.storage.from('profile').getPublicUrl(fileName);
         }
 
         final authResponse = await supabase.auth.signUp(

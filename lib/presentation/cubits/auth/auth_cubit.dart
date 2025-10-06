@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:team_scheduler/data/models/user_model.dart';
 import 'package:team_scheduler/data/repositories/auth_repository.dart';
+import 'package:team_scheduler/main.dart';
 
 part 'auth_state.dart';
 
@@ -32,6 +33,13 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (e) {
       emit(AuthFailure(e.toString()));
     }
+  }
+
+  Future<void> signOut() async {
+    await supabase.auth.signOut();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_id');
+    emit(AuthInitial());
   }
 
   Future<XFile?> pickImage() async {
